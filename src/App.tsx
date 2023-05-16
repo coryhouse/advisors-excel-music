@@ -1,8 +1,9 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import { SongMetadata } from "./SongMetadata";
 import { Song } from "./types/Song";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormField } from "./shared/FormField";
+import { getSongs } from "./services/songService";
 
 type NewSong = Omit<
   Song,
@@ -24,13 +25,28 @@ type Errors = {
 type Status = "idle" | "submitted";
 
 export function App() {
-  const [songs, setSongs] = useState(initialSongs);
+  const [songs, setSongs] = useState<Song[]>([]);
   const [song, setSong] = useState(newSong);
   const [status, setStatus] = useState<Status>("idle");
   const [formKey, setFormKey] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<Error | null>(null);
 
   // Derived state
   const errors = validate();
+
+  useEffect(() => {
+    async function fetchSongs() {
+      try {
+        const songs = await getSongs();
+        setSongs(songs);
+        setIsLoading(false);
+      } catch (error) {
+        setFetchError(error as Error);
+      }
+    }
+    fetchSongs();
+  }, []);
 
   function onChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -72,6 +88,10 @@ export function App() {
     setStatus("idle");
   }
 
+  if (fetchError) {
+    return <p>Failed to load songs. 🤮</p>;
+  }
+
   return (
     <div className="p-2">
       <h1 className="text-2xl">Songs</h1>
@@ -110,32 +130,36 @@ export function App() {
         </Button>
       </form>
 
-      <section className="flex flex-wrap mt-2">
-        {songs.map((song) => {
-          return (
-            <section className="bg-cyan-600 block hover:bg-cyan-500 transition-colors hover:shadow-xl min-w-min text-white p-2 mr-2 mb-2 rounded shadow">
-              <h2 className="font-bold">
-                {song.title} - {song.artist}
-              </h2>
-              <p>{song.length}</p>
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
+        <section className="flex flex-wrap mt-2">
+          {songs.map((song) => {
+            return (
+              <section className="bg-cyan-600 block hover:bg-cyan-500 transition-colors hover:shadow-xl min-w-min text-white p-2 mr-2 mb-2 rounded shadow">
+                <h2 className="font-bold">
+                  {song.title} - {song.artist}
+                </h2>
+                <p>{song.length}</p>
 
-              <div>
-                <SongMetadata
-                  action="Created"
-                  date={song.createdAt}
-                  email={song.createdBy}
-                />
+                <div>
+                  <SongMetadata
+                    action="Created"
+                    date={song.createdAt}
+                    email={song.createdBy}
+                  />
 
-                <SongMetadata
-                  action="Updated"
-                  date={song.updatedAt}
-                  email={song.updatedBy}
-                />
-              </div>
-            </section>
-          );
-        })}
-      </section>
+                  <SongMetadata
+                    action="Updated"
+                    date={song.updatedAt}
+                    email={song.updatedBy}
+                  />
+                </div>
+              </section>
+            );
+          })}
+        </section>
+      )}
     </div>
   );
 }
