@@ -43,19 +43,12 @@ type Errors = {
   length?: string;
 };
 
-type Touched = {
-  artist?: boolean;
-  title?: boolean;
-  length?: boolean;
-};
-
 type Status = "idle" | "submitted";
 
 export function App() {
   const [songs, setSongs] = useState(initialSongs);
   const [song, setSong] = useState(newSong);
   const [status, setStatus] = useState<Status>("idle");
-  const [touched, setTouched] = useState<Touched>({});
 
   // Derived state
   const errors = validate();
@@ -97,6 +90,7 @@ export function App() {
     // Clear form
     setSong(newSong);
     setStatus("idle");
+    setTouched({});
   }
 
   return (
