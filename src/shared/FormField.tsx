@@ -6,7 +6,7 @@ type FormFieldProps = {
   id: string;
   value: string;
   onChange: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
-  error: string;
+  error: string | undefined;
   onBlur?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   formSubmitted: boolean;
 };

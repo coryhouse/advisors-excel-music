@@ -2,6 +2,7 @@ import { Box, Button, TextField } from "@mui/material";
 import { SongMetadata } from "./SongMetadata";
 import { Song } from "./types/Song";
 import { useState } from "react";
+import { FormField } from "./shared/FormField";
 
 const initialSongs: Song[] = [
   {
@@ -49,6 +50,7 @@ export function App() {
   const [songs, setSongs] = useState(initialSongs);
   const [song, setSong] = useState(newSong);
   const [status, setStatus] = useState<Status>("idle");
+  const [formKey, setFormKey] = useState(0);
 
   // Derived state
   const errors = validate();
@@ -88,66 +90,43 @@ export function App() {
       },
     ]);
     // Clear form
+    setFormKey(formKey + 1);
     setSong(newSong);
     setStatus("idle");
-    setTouched({});
   }
 
   return (
     <div className="p-2">
       <h1 className="text-2xl">Songs</h1>
 
-      <form onSubmit={onSubmit}>
+      <form key={formKey} onSubmit={onSubmit}>
         <h2>Add Song</h2>
-        <Box>
-          <TextField
-            label="Title"
-            id="title"
-            value={song.title}
-            onChange={onChange}
-            error={
-              (status === "submitted" || touched.title) && Boolean(errors.title)
-            }
-            helperText={
-              (status === "submitted" || touched.title) && errors.title
-            }
-            onBlur={() => setTouched({ ...touched, title: true })}
-          />
-        </Box>
+        <FormField
+          label="Title"
+          id="title"
+          value={song.title}
+          onChange={onChange}
+          error={errors.title}
+          formSubmitted={status === "submitted"}
+        />
 
-        <Box>
-          <TextField
-            label="Artist"
-            id="artist"
-            value={song.artist}
-            onChange={onChange}
-            error={
-              (status === "submitted" || touched.artist) &&
-              Boolean(errors.artist)
-            }
-            helperText={
-              (status === "submitted" || touched.artist) && errors.artist
-            }
-            onBlur={() => setTouched({ ...touched, artist: true })}
-          />
-        </Box>
+        <FormField
+          label="Artist"
+          id="artist"
+          value={song.artist}
+          onChange={onChange}
+          error={errors.artist}
+          formSubmitted={status === "submitted"}
+        />
 
-        <Box>
-          <TextField
-            label="Length"
-            id="length"
-            value={song.length}
-            onChange={onChange}
-            error={
-              (status === "submitted" || touched.length) &&
-              Boolean(errors.length)
-            }
-            helperText={
-              (status === "submitted" || touched.length) && errors.length
-            }
-            onBlur={() => setTouched({ ...touched, length: true })}
-          />
-        </Box>
+        <FormField
+          label="Length"
+          id="length"
+          value={song.length}
+          onChange={onChange}
+          error={errors.length}
+          formSubmitted={status === "submitted"}
+        />
 
         <Button type="submit" variant="contained">
           Add Song
