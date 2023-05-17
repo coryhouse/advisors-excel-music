@@ -3,7 +3,7 @@ import { Song } from "../types/Song";
 import { Deserializer, Serializer } from "jsonapi-serializer";
 import { NewSong } from "../App";
 
-type SongResponse = {
+export type SongResponse = {
   type: "songs";
   id: string;
   attributes: {
