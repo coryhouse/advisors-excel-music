@@ -4,7 +4,7 @@ import { Song } from "./types/Song";
 import { useState } from "react";
 import { FormField } from "./shared/FormField";
 import { createSong, getSongs } from "./services/songService";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export type NewSong = Omit<
   Song,
@@ -30,6 +30,8 @@ export function App() {
   const [status, setStatus] = useState<Status>("idle");
   const [formKey, setFormKey] = useState(0);
 
+  const queryClient = useQueryClient();
+
   // Derived state
   const errors = validate();
 
@@ -48,6 +50,7 @@ export function App() {
       setFormKey(formKey + 1);
       setSong(newSong);
       setStatus("idle");
+      queryClient.invalidateQueries({ queryKey: ["songs"] });
     },
   });
 
