@@ -3,10 +3,10 @@ import { SongMetadata } from "./SongMetadata";
 import { Song } from "./types/Song";
 import { useState } from "react";
 import { FormField } from "./shared/FormField";
-import { getSongs } from "./services/songService";
-import { useQuery } from "@tanstack/react-query";
+import { createSong, getSongs } from "./services/songService";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
-type NewSong = Omit<
+export type NewSong = Omit<
   Song,
   "id" | "createdAt" | "updatedAt" | "createdBy" | "updatedBy"
 >;
@@ -42,6 +42,15 @@ export function App() {
     queryFn: getSongs,
   });
 
+  const songMutation = useMutation({
+    mutationFn: (song: NewSong) => createSong(song),
+    onSuccess: () => {
+      setFormKey(formKey + 1);
+      setSong(newSong);
+      setStatus("idle");
+    },
+  });
+
   function onChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
@@ -60,11 +69,7 @@ export function App() {
     e.preventDefault();
     setStatus("submitted");
     if (Object.keys(errors).length > 0) return; // Don't submit if there are errors
-
-    // Validate
-    // "Disable" submit button
-    // Notification
-    // Save it somewhere
+    songMutation.mutate(song);
     // setSongs([
     //   ...songs,
     //   {
@@ -76,10 +81,6 @@ export function App() {
     //     updatedBy: "admin@email.com",
     //   },
     // ]);
-    // Clear form
-    setFormKey(formKey + 1);
-    setSong(newSong);
-    setStatus("idle");
   }
 
   return (
@@ -129,7 +130,7 @@ export function App() {
             return (
               <section
                 key={song.id}
-                className="bg-cyan-600 block hover:bg-cyan-500 transition-colors hover:shadow-xl min-w-min text-white p-2 mr-2 mb-2 rounded shadow"
+                className="block p-2 mb-2 mr-2 text-white transition-colors rounded shadow bg-cyan-600 hover:bg-cyan-500 hover:shadow-xl min-w-min"
               >
                 <h2 className="font-bold">
                   {song.title} - {song.artist}
