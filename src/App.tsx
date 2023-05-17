@@ -1,7 +1,7 @@
 import { Button, CircularProgress } from "@mui/material";
 import { SongMetadata } from "./SongMetadata";
 import { Song } from "./types/Song";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FormField } from "./shared/FormField";
 import { getSongs } from "./services/songService";
 import { useQuery } from "@tanstack/react-query";
@@ -35,7 +35,6 @@ export function App() {
 
   const {
     data: songs = [],
-    isError,
     isLoading,
     isRefetching,
   } = useQuery({
@@ -81,10 +80,6 @@ export function App() {
     setFormKey(formKey + 1);
     setSong(newSong);
     setStatus("idle");
-  }
-
-  if (isError) {
-    return <p>Failed to load songs. 🤮</p>;
   }
 
   return (

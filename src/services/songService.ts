@@ -77,7 +77,7 @@ export async function getSongs(): Promise<Song[]> {
   const resp = (await ky(import.meta.env.VITE_API_BASE_URL + "v1/songs", {
     headers: {
       accept: "application/vnd.api+json",
-      prefer: "code=200, dynamic=true",
+      prefer: "code=500, dynamic=true",
     },
   }).json()) as GetSongsResponse;
 
