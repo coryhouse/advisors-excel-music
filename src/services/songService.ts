@@ -74,9 +74,12 @@ export type GetSongsResponse = {
 };
 
 export async function getSongs(): Promise<Song[]> {
-  const resp = (await ky(
-    "http://localhost:3000/v1/songs"
-  ).json()) as GetSongsResponse;
+  const resp = (await ky(import.meta.env.VITE_API_BASE_URL + "v1/songs", {
+    headers: {
+      accept: "application/vnd.api+json",
+      prefer: "code=200, dynamic=true",
+    },
+  }).json()) as GetSongsResponse;
 
   const deserializer = new Deserializer({
     keyForAttribute: "camelCase",

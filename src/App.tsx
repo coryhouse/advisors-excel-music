@@ -4,6 +4,7 @@ import { Song } from "./types/Song";
 import { useEffect, useState } from "react";
 import { FormField } from "./shared/FormField";
 import { getSongs } from "./services/songService";
+import { useQuery } from "@tanstack/react-query";
 
 type NewSong = Omit<
   Song,
@@ -25,28 +26,22 @@ type Errors = {
 type Status = "idle" | "submitted";
 
 export function App() {
-  const [songs, setSongs] = useState<Song[]>([]);
   const [song, setSong] = useState(newSong);
   const [status, setStatus] = useState<Status>("idle");
   const [formKey, setFormKey] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [fetchError, setFetchError] = useState<Error | null>(null);
 
   // Derived state
   const errors = validate();
 
-  useEffect(() => {
-    async function fetchSongs() {
-      try {
-        const songs = await getSongs();
-        setSongs(songs);
-        setIsLoading(false);
-      } catch (error) {
-        setFetchError(error as Error);
-      }
-    }
-    fetchSongs();
-  }, []);
+  const {
+    data: songs = [],
+    isError,
+    isLoading,
+    isRefetching,
+  } = useQuery({
+    queryKey: ["songs"],
+    queryFn: getSongs,
+  });
 
   function onChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -71,30 +66,31 @@ export function App() {
     // "Disable" submit button
     // Notification
     // Save it somewhere
-    setSongs([
-      ...songs,
-      {
-        ...song,
-        id: Math.random().toString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        createdBy: "admin@email.com",
-        updatedBy: "admin@email.com",
-      },
-    ]);
+    // setSongs([
+    //   ...songs,
+    //   {
+    //     ...song,
+    //     id: Math.random().toString(),
+    //     createdAt: new Date().toISOString(),
+    //     updatedAt: new Date().toISOString(),
+    //     createdBy: "admin@email.com",
+    //     updatedBy: "admin@email.com",
+    //   },
+    // ]);
     // Clear form
     setFormKey(formKey + 1);
     setSong(newSong);
     setStatus("idle");
   }
 
-  if (fetchError) {
+  if (isError) {
     return <p>Failed to load songs. 🤮</p>;
   }
 
   return (
     <div className="p-2">
       <h1 className="text-2xl">Songs</h1>
+      {isRefetching && <p>Refetching...</p>}
 
       <form key={formKey} onSubmit={onSubmit}>
         <h2>Add Song</h2>
