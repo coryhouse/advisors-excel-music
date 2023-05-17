@@ -136,7 +136,10 @@ export function App() {
         <section className="flex flex-wrap mt-2">
           {songs.map((song) => {
             return (
-              <section className="bg-cyan-600 block hover:bg-cyan-500 transition-colors hover:shadow-xl min-w-min text-white p-2 mr-2 mb-2 rounded shadow">
+              <section
+                key={song.id}
+                className="bg-cyan-600 block hover:bg-cyan-500 transition-colors hover:shadow-xl min-w-min text-white p-2 mr-2 mb-2 rounded shadow"
+              >
                 <h2 className="font-bold">
                   {song.title} - {song.artist}
                 </h2>

@@ -1,5 +1,6 @@
 import ky from "ky";
 import { Song } from "../types/Song";
+import { Deserializer } from "jsonapi-serializer";
 
 type SongResponse = {
   type: "songs";
@@ -76,4 +77,10 @@ export async function getSongs(): Promise<Song[]> {
   const resp = (await ky(
     "http://localhost:3000/v1/songs"
   ).json()) as GetSongsResponse;
+
+  const deserializer = new Deserializer({
+    keyForAttribute: "camelCase",
+  });
+  const songs = await deserializer.deserialize(resp);
+  return songs;
 }
