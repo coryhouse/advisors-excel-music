@@ -20,6 +20,7 @@ export function useCreateSong(onSuccess: () => void) {
     mutationFn: (song: NewSong) => createSong(song),
     onSuccess: () => {
       onSuccess();
+      console.log("invalidating");
       queryClient.invalidateQueries({ queryKey: keys.songs });
     },
   });
