@@ -3,8 +3,7 @@ import { SongMetadata } from "./SongMetadata";
 import { Song } from "./types/Song";
 import { useState } from "react";
 import { FormField } from "./shared/FormField";
-import { createSong, getSongs } from "./services/songService";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCreateSong, useGetSongs } from "./hooks/useSongs";
 
 export type NewSong = Omit<
   Song,
@@ -30,28 +29,15 @@ export function App() {
   const [status, setStatus] = useState<Status>("idle");
   const [formKey, setFormKey] = useState(0);
 
-  const queryClient = useQueryClient();
-
   // Derived state
   const errors = validate();
 
-  const {
-    data: songs = [],
-    isLoading,
-    isRefetching,
-  } = useQuery({
-    queryKey: ["songs"],
-    queryFn: getSongs,
-  });
+  const { data: songs = [], isLoading, isRefetching } = useGetSongs();
 
-  const songMutation = useMutation({
-    mutationFn: (song: NewSong) => createSong(song),
-    onSuccess: () => {
-      setFormKey(formKey + 1);
-      setSong(newSong);
-      setStatus("idle");
-      queryClient.invalidateQueries({ queryKey: ["songs"] });
-    },
+  const songMutation = useCreateSong(() => {
+    setFormKey(formKey + 1);
+    setSong(newSong);
+    setStatus("idle");
   });
 
   function onChange(
